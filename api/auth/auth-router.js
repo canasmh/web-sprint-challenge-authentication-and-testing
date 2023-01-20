@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const bcrypt = require('bcrypt');
 const db = require('../../data/dbConfig');
 
 router.post('/register', async (req, res) => {
@@ -11,7 +12,10 @@ router.post('/register', async (req, res) => {
   } else if (!username || !password) {
     res.end('username and password required');
   } else {
-    res.end('implement register, please!');
+    const hash = bcrypt.hashSync(password, 8)
+    const id = await db('users').insert({username, password: hash})
+    const newUser = await db('users').where({username: username}).first();
+    res.send(newUser).json();
   }
   
   
