@@ -1,5 +1,20 @@
+const jwt = require('jsonwebtoken');
+
 module.exports = (req, res, next) => {
-  next();
+  const token = req.headers.authorization;
+  // console.log(token);
+
+  if (!token) {
+    res.end("token required");
+  } else {
+    try {
+      const verify = jwt.verify(token, process.env.JWT_SECRET || 'keep it secret, keep it safe!');
+      next();
+    } catch {
+      res.end("token invalid")
+    }
+  }
+  
   /*
     IMPLEMENT
 
