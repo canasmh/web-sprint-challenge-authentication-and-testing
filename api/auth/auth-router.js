@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const db = require('../../data/dbConfig');
 
 router.post('/register', async (req, res) => {
@@ -77,16 +78,34 @@ router.post('/login', async (req, res) => {
     res.end("username and password required")
   } else {
 
-    const user = await db('users').where({username: 'asdljsdf'}).first();
+    const user = await db('users').where({username: username}).first();
 
-    if (!user || user.password !== password) {
-      res.end("invalid credentials")
+    if (user && bcrypt.compareSync(password, user.password)) {
+      const token = generateToken(user);
+      res.send({message: `welcome, ${user.username}`, "token": token}).json();
     } else {
-      res.end('implement login, please!');
+      // console.log(password, user.password);
+      res.end("invalid credentials")
+      
     }
     
   }
   
 });
+
+function generateToken(user) {
+  const payload = {
+    subject: user.id,
+    username: user.username
+  }
+  
+  const options = {
+    expiresIn: '30m'
+  }
+
+  const jwtSecret = process.env.JWT_SECRET || 'keep it secret, keep it safe!'
+
+  return jwt.sign(payload, jwtSecret, options);
+}
 
 module.exports = router;
