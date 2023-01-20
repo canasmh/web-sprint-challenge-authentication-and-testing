@@ -7,9 +7,9 @@ router.post('/register', async (req, res) => {
 
   if (user.length) {
     console.log('uh oh')
-    res.end('username taken').json();
+    res.end('username taken');
   } else if (!username || !password) {
-    res.end('username and password required')
+    res.end('username and password required');
   } else {
     res.end('implement register, please!');
   }
