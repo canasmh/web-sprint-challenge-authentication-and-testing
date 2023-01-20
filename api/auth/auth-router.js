@@ -9,9 +9,9 @@ router.post('/register', async (req, res) => {
 
   if (user.length) {
     console.log('uh oh')
-    res.end('username taken');
+    res.status(400).end('username taken');
   } else if (!username || !password) {
-    res.end('username and password required');
+    res.status(400).end('username and password required');
   } else {
     const hash = bcrypt.hashSync(password, 8)
     const id = await db('users').insert({username, password: hash})
