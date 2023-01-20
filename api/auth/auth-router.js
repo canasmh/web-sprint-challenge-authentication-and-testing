@@ -75,7 +75,7 @@ router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    res.end("username and password required")
+    res.status(400).end("username and password required")
   } else {
 
     const user = await db('users').where({username: username}).first();
@@ -84,7 +84,7 @@ router.post('/login', async (req, res) => {
       const token = generateToken(user);
       res.send({message: `welcome, ${user.username}`, "token": token}).json();
     } else {
-      res.end("invalid credentials")
+      res.status(400).end("invalid credentials")
     }
     
   }
