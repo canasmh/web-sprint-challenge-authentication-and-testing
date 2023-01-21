@@ -3,8 +3,11 @@ const server = require('./server.js');
 const request = require('supertest');
 const db = require('../data/dbConfig');
 
-beforeEach(async () => {
-  await db('users').truncate();
+beforeAll(async () => {
+  // await db('users').truncate();
+  await db.migrate.rollback();
+  await db.migrate.latest();
+
 })
 
 afterAll(async () => {
