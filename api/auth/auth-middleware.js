@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 function checkBodyParams(req, res, next) {
     if (!req.body.username || !req.body.password) {
         console.log('username or password missing')
-        res.status(400).end("username and password required");
+        res.status(400).send({message: "username and password required"}).json();
     } else {
         console.log('username and password provided')
         next();
