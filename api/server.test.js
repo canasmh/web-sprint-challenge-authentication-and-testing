@@ -18,8 +18,7 @@ describe('testing the api endpoints', () => {
   
   describe('testing the auth register endpoint', () => {
     it('missing password returns "username and password required"', async () => {
-      const response = await request(server).post('/api/auth/register').send({username: 'manny'})
-      expect(response.text).toBe('username and password required');
+      const response = await request(server).post('/api/auth/register').send({username: 'manny'}).expect({message: "username and password required"});
     });
 
     it('check that new user is added to the database', async () => {
@@ -34,10 +33,29 @@ describe('testing the api endpoints', () => {
       const response = await request(server).post('/api/auth/register').send({username: 'manny', password: 'mypassword'});
       let users = await db('users');
       expect(users).toHaveLength(1);
-      const newResponse = await request(server).post('/api/auth/register').send({username: 'manny', password: 'mypassword'});
-      expect(newResponse.text).toBe('username taken');
+      const newResponse = await request(server).post('/api/auth/register').send({username: 'manny', password: 'mypassword'}).expect({message: 'username taken'});
       users = await db('users');
       expect(users).toHaveLength(1);
-    })
+    });
+  });
+
+  describe('Testing the auth login endpoint', () => {
+    it('missing password or username returns "username and password required"', async () => {
+      const response = await request(server).post('/api/auth/login').send({username: 'manny'}).expect({message: "username and password required"});
+    });
+
+    it('missing password or username returns appropriate status code', async () => {
+      const response = await request(server).post('/api/auth/login').send({username: 'manny'}).expect(400);
+    });
+
+    it('Successfull login sends appropriate status code', async () => {
+      const response1 = await request(server).post('/api/auth/register').send({username: 'manny', password: 'mypassword'})
+      const response2 = await request(server).post('/api/auth/login').send({username: 'manny', password: 'mypassword'}).expect(200);
+    });
+
+    it('Sends invalid credentials if password is incorrect', async () => {
+      const response1 = await request(server).post('/api/auth/register').send({username: 'manny', password: 'mypassword'})
+      const response2 = await request(server).post('/api/auth/login').send({username: 'manny', password: 'mypasswordddd'}).expect({message: "invalid credentials"});
+    });
   })
 })
