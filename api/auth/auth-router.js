@@ -2,7 +2,7 @@ const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../../data/dbConfig');
-const { checkBodyParams, checkUniqueUsername } = require('./auth-middleware.js');
+const { checkBodyParams, checkUniqueUsername, checkCredentialss } = require('./auth-middleware.js');
 
 router.post('/register', checkBodyParams, checkUniqueUsername, async (req, res) => {
   /*
@@ -36,11 +36,10 @@ router.post('/register', checkBodyParams, checkUniqueUsername, async (req, res) 
   const hash = bcrypt.hashSync(password, 8)
   const id = await db('users').insert({username, password: hash})
   const newUser = await db('users').where({username: username}).first();
-  res.send(newUser).json();
+  res.status(201).send(newUser).json();
 });
 
-router.post('/login', async (req, res) => {
-  
+router.post('/login', checkBodyParams, checkCredentials, async (req, res) => {
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -65,22 +64,9 @@ router.post('/login', async (req, res) => {
       the response body should include a string exactly as follows: "invalid credentials".
   */
   const { username, password } = req.body;
-
-  if (!username || !password) {
-    res.status(400).end("username and password required")
-  } else {
-
-    const user = await db('users').where({username: username}).first();
-
-    if (user && bcrypt.compareSync(password, user.password)) {
-      const token = generateToken(user);
-      res.status(201).send({message: `welcome, ${user.username}`, "token": token}).json();
-    } else {
-      res.status(400).end("invalid credentials")
-    }
-    
-  }
-  
+  const user = await db('users').where({username: username}).first();
+  const token = generateToken(user);
+  res.status(200).send({message: `welcome, ${user.username}`, "token": token}).json();
 });
 
 function generateToken(user) {
