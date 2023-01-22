@@ -5,13 +5,13 @@ module.exports = (req, res, next) => {
   // console.log(token);
 
   if (!token) {
-    res.status(401).end("token required");
+    res.status(401).send({message: "token required"}).json();
   } else {
     try {
       const verify = jwt.verify(token, process.env.JWT_SECRET || 'keep it secret, keep it safe!');
       next();
     } catch {
-      res.status(401).end("token invalid")
+      res.status(401).send({message: "token invalid"}).json();
     }
   }
   

@@ -18,7 +18,7 @@ async function checkUniqueUsername(req, res, next) {
 
     if (user) {
         console.log('user is taken')
-        res.status(400).end("username taken");
+        res.status(400).send({message: "username taken"}).json();
     } else {
         console.log('user is not taken')
         next();
@@ -30,7 +30,7 @@ async function checkCredentials(req, res, next) {
     const user = await db('users').where({username: username}).first();
 
     if (!(user && bcrypt.compareSync(password, user.password))) {
-        res.status(400).end("invalid credentials")
+        res.status(400).send({message: "invalid credentials"}).json();
     } else {
         next();
     }
