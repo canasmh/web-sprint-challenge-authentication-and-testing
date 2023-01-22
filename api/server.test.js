@@ -13,6 +13,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await db.destroy();
 })
+
 describe('testing the api endpoints', () => {
   
   describe('testing the auth register endpoint', () => {
