@@ -2,24 +2,9 @@ const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../../data/dbConfig');
+const { checkBodyParams, checkUniqueUsername } = require('./auth-middleware.js');
 
-router.post('/register', async (req, res) => {
-  const {username, password} = req.body;
-  const user = await db('users').where({username: username});
-
-  if (user.length) {
-    console.log('uh oh')
-    res.status(400).send('username taken');
-  } else if (!username || !password) {
-    res.status(400).send('username and password required');
-  } else {
-    const hash = bcrypt.hashSync(password, 8)
-    const id = await db('users').insert({username, password: hash})
-    const newUser = await db('users').where({username: username}).first();
-    res.send(newUser).json();
-  }
-  
-  
+router.post('/register', checkBodyParams, checkUniqueUsername, async (req, res) => {
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -45,6 +30,13 @@ router.post('/register', async (req, res) => {
     4- On FAILED registration due to the `username` being taken,
       the response body should include a string exactly as follows: "username taken".
   */
+
+  const {username, password} = req.body;
+  const user = await db('users').where({username: username});
+  const hash = bcrypt.hashSync(password, 8)
+  const id = await db('users').insert({username, password: hash})
+  const newUser = await db('users').where({username: username}).first();
+  res.send(newUser).json();
 });
 
 router.post('/login', async (req, res) => {
